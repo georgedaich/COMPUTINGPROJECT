@@ -1,0 +1,178 @@
+using UnityEngine;
+using System.Collections;
+
+// Controls player movement and rotation.
+public class PlayerController : MonoBehaviour
+
+{
+    public float speed = 5.0f; // Set player's movement speed.
+    public float rotationSpeed = 120.0f; // Set player's rotation speed.
+    public KeyCode powerUpKey = KeyCode.Space; //powerup firing button
+    
+    private string pname = ""; // the player starting powerup
+    
+    public GameObject bulletMod; // the model to spawn when the bullet is fired
+    public int bulletSpeed;
+    public float spintime; //how long the player will spin when hit with a missile
+    
+    public GameObject HomingRocketMod;
+
+    private Quaternion rotate; // just a variable to make the bullets spawn the right way
+
+    private Rigidbody rb; // player's Rigidbody.
+
+    private int ammo;
+    
+    
+
+    // Start is called before the first frame update
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>(); // Access player's Rigidbody.
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(powerUpKey))
+        {
+            if (pname == "bullets")
+            {
+                useBullets();
+            }
+            
+            else if (pname == "SpeedBoost")
+            {
+                useSpeedBoost();
+            }
+            
+            else if (pname == "HomingRocket")
+            {
+                useHomingRocket();
+            }
+        }
+            
+    }
+
+
+    // Handle physics-based movement and rotation.
+    private void FixedUpdate()
+    {
+        // Move player based on vertical input.
+        float moveVertical = Input.GetAxis("Vertical");
+        Vector3 movement = transform.forward * moveVertical * speed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + movement);
+
+        // Rotate player based on horizontal input.
+        float turn = Input.GetAxis("Horizontal") * rotationSpeed * Time.fixedDeltaTime;
+        Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
+        rb.MoveRotation(rb.rotation * turnRotation);
+    }
+    
+    private void OnTriggerEnter(Collider other) {
+        if (other.CompareTag("SpeedDown"))
+        {
+            pname = "SpeedDown";
+            SpeedDown();
+        }
+        
+        if (other.CompareTag("MissileBody"))
+        {
+            
+            
+        }
+        
+        
+        if (pname == "")
+        {
+            if (other.CompareTag("Bullets"))
+            {
+                pname = "bullets";
+                ammo = 3;
+            }
+
+            if (other.CompareTag("SpeedBoost"))
+            {
+                pname = "SpeedBoost";
+            }
+            
+            if (other.CompareTag("HomingRocket"))
+            {
+                pname = "HomingRocket";
+            }
+            
+            
+        }
+    }
+
+    private void useBullets()
+    {
+        rotate = transform.rotation * Quaternion.Euler(90, 0, 0);
+        
+        Instantiate(bulletMod, transform.position + transform.forward + transform.forward, rotate);
+        
+        ammo = ammo - 1;
+        if (ammo == 0)
+        {
+            pname = "";
+        }
+    }
+    
+    
+    private void useHomingRocket()
+    {
+        rotate = transform.rotation;
+        Instantiate(HomingRocketMod, transform.position + transform.forward + transform.forward, rotate);
+        
+
+        pname = "";
+    }
+    
+
+    private void useSpeedBoost()
+    {
+        pname = "";
+        StartCoroutine(SpeedBoostCoroutine());
+
+    }
+
+    private IEnumerator SpeedBoostCoroutine() //co routine for the speed boost to make it last 3 seconds
+    {
+        speed = speed * 3f;
+        yield return new WaitForSeconds(3f);
+        speed = speed / 3f;
+    }
+    
+    
+    private void SpeedDown()
+    {
+        StartCoroutine(SpeedDownCoroutine());
+        pname = "";
+
+    }
+
+    private IEnumerator SpeedDownCoroutine() //co routine for the speed dampener to make it last 3 seconds
+    {
+        speed = speed / 2f;
+        yield return new WaitForSeconds(3f);
+        speed = speed * 2f;
+    }
+
+
+    private IEnumerator HitByMissile()
+    {
+        float timer = 0f;
+        float spinspeed = 360f;
+
+        while (timer < spintime)
+        {
+            transform.Rotate(0, spinspeed * Time.deltaTime, 0);
+            
+            timer += Time.deltaTime;
+            yield return null;
+        }
+    }
+    
+    
+    
+}

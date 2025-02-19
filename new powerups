@@ -1,0 +1,73 @@
+// ADD THIS AT THE TOP
+private Renderer rend;
+private bool invulnerabilty = false;
+
+//ADD THIS IN void Update
+            else if (pname == "Star")
+            {
+                useStar();
+            }
+
+
+//ADD THIS IN private void OnTriggerEnter(Collider other) 
+
+            if (other.CompareTag("Question"))
+            {
+                int num = Random.Range(0, 4);
+                pname = pnames[num];
+            }
+
+            if (other.CompareTag("Exclamation"))
+            {
+                exclamation();
+            }
+
+
+
+
+//ADD THIS TO THE BOTTOM OF THE SCRIPT
+
+private void useStar()
+    {
+        pname = "";
+        StartCoroutine(StarCoroutine());
+    }
+
+private IEnumerator StarCoroutine() //co routine for the speed dampener to make it last 3 seconds
+    {
+        invulnerabilty = true;
+        speed = speed * 3f;
+        rend.material.color = Color.yellow;
+        yield return new WaitForSeconds(12f);
+        invulnerabilty = false;
+        speed = speed / 3f;
+        rend.material.color = Color.blue;
+    }
+
+    private void exclamation()
+    {
+        StartCoroutine(ExclamationCoroutine());
+    }
+
+    private IEnumerator ExclamationCoroutine()
+    {
+        float wait;
+        float numb;
+        for (int i = 1; i < 35; i++)
+        {
+            if (i < 20)
+            {
+                wait = 0.2f;
+            }
+            else
+            {
+                wait = 0.1f;
+            }
+            numb = 4f / i;
+            rend.material.color = Color.red;
+            yield return new WaitForSeconds(0.2f);
+            rend.material.color = Color.blue;
+            yield return new WaitForSeconds(numb);
+
+
+        }

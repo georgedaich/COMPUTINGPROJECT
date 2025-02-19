@@ -1,6 +1,10 @@
 // ADD THIS AT THE TOP
 private Renderer rend;
 private bool invulnerabilty = false;
+private List<string> pnames = new List<string>
+    {
+        "bullets", "SpeedBoost", "HomingRocket", "Star", "SpeedDown"
+    };
 
 //ADD THIS IN void Update
             else if (pname == "Star")
